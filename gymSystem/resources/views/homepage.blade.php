@@ -10,7 +10,7 @@
     <body>
         <div class="container">
             <div class="navigation">
-                <h2>Welcome, <br> {{ session('name') }}</h2>
+                <h2>Welcome,<br>{{ session('name') }}</h2>
                 <a class="nav" href="{{route('customers')}}">Customers</a>
                 <div class="sep"></div>
                 <a class="nav" href="{{route('trainers')}}">Trainers</a>

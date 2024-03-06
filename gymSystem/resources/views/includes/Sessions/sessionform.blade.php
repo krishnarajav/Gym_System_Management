@@ -42,12 +42,18 @@
             <input type="text" id="t_id" name="t_id">
             <br>
 
+            @if(session('error'))
+                <div style="color: rgb(233, 5, 5);">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if($errors->has('c_id') && $errors->has('t_id'))
-                <div class="error-message">Both Customer ID and Trainer ID are not available in the database.</div>
+                <div style="color: rgb(233, 5, 5);">Both Customer ID and Trainer ID are not available in the database.</div>
             @elseif($errors->has('c_id'))
-                <div class="error-message">{{ $errors->first('c_id') }}</div>
+                <div style="color: rgb(233, 5, 5);">{{ $errors->first('c_id') }}</div>
             @elseif($errors->has('t_id'))
-                <div class="error-message">{{ $errors->first('t_id') }}</div>
+                <div style="color: rgb(233, 5, 5);">{{ $errors->first('t_id') }}</div>
             @endif
             <br>
     

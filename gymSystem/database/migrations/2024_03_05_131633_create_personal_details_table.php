@@ -8,15 +8,18 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement('
-            create table Sessions (
+            create table Personal_Details (
                 id int,
-                s_date date,
-                s_time varchar(30), 
+                name varchar(50),
+                dob date,
+                age int,
+                gender varchar(10),
+                address varchar(50),
+                mobile varchar(15),
                 c_id varchar(10),
                 t_id varchar(10),
                 foreign key (c_id) references Customers(c_id) on delete cascade,
-                foreign key (t_id) references Trainers(t_id) on delete cascade,
-                primary key(s_date, s_time, c_id), 
+                foreign key (c_id) references Trainers(t_id) on delete cascade,
                 created_at timestamp default current_timestamp,
                 updated_at timestamp default current_timestamp on update current_timestamp
             )
@@ -25,6 +28,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::statement('drop table if exists Sessions');
+        DB::statement('drop table if exists Personal_Details');
     }
 };

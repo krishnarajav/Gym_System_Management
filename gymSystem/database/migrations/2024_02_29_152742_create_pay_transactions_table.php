@@ -9,13 +9,13 @@ return new class extends Migration
     {
         DB::statement('
             create table Pay_Transactions (
+                id int,
                 payer_id varchar(10),
                 payee_id varchar(10),
                 payment_mode varchar(20),
                 pay_date date,
                 amount decimal(10, 2),
                 transaction_id varchar(20),
-                primary key(payer_id, payee_id),
                 created_at timestamp default current_timestamp,
                 updated_at timestamp default current_timestamp on update current_timestamp
             )

@@ -14,7 +14,7 @@
             <br>
     
             <label style="width: 120px;" for="name">Name:</label>
-            <input style="width: 280px;" type="text" id="name" name="name" required>
+            <input style="width: 400px;" type="text" id="name" name="name" required>
             <br>
     
 
@@ -33,6 +33,13 @@
             <label  style="width: 120px;" for="purchased_date">Purchased Date:</label>
             <input style="width: 150px;" type="date" id="purchased_date" name="purchased_date" required>
             <br><br>
+
+            <div style="color: rgb(233, 5, 5);">
+                @if($errors->any())
+                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                @endif
+            </div>
+            <br>
     
             <div class="button-group">
                 <a class="cancel-button" href="{{route('equipments')}}">Cancel</a>

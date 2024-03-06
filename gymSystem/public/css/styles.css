@@ -20,7 +20,6 @@ body {
 
 .navigation h2 {
     color: #cc0000;
-    margin-bottom: 20px;
     border-bottom: 2px solid #cc0000;
     padding-bottom: 10px; 
 }
@@ -155,7 +154,7 @@ table {
 }
 
 .entryform input {
-    width: 150px;
+    width: 180px;
     height: 32px;
     background: none;  
     padding: 10px;
@@ -249,7 +248,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .display-table th {
-    background-color: #4a4a4a9e;
+    background-color: #5555559e;
     color: #ddd;
 }
 

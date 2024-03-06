@@ -28,6 +28,13 @@
             <label for="price">Price (INR):</label>
             <input type="number" step="0.01" id="price" name="price" required>
             <br><br>
+
+            <div style="color: rgb(233, 5, 5);">
+                @if($errors->any())
+                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                @endif
+            </div>
+            <br>
     
             <div class="button-group">
                 <a class="cancel-button" href="{{ route('plans') }}">Cancel</a>

@@ -41,9 +41,16 @@
             <input type="number" id="experience" name="experience" required>
             <br>
             
-            <label style="width: 140px;" for="salary">Salary (INR):</label>
+            <label style="width: 140px;" for="salary">Monthly Salary (INR):</label>
             <input type="number" step="0.01" id="salary" name="salary" required>
             <br><br>
+
+            <div style="color: rgb(233, 5, 5);">
+                @if($errors->any())
+                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                @endif
+            </div>
+            <br>
     
             <div class="button-group">
                 <a class="cancel-button" href="{{route('trainers')}}">Cancel</a>

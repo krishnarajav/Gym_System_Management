@@ -14,7 +14,7 @@ use App\Models\Customer;
 use App\Models\Trainer;
 use App\Models\Equipment;
 use App\Models\Plan;
-use App\Models\Sessions;
+use App\Models\GymSession;
 use App\Models\Pay_Transaction;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
@@ -279,86 +279,11 @@ class AppManager extends Controller {
         return redirect()->route('customers')->with('success', 'Customer deleted successfully!');
     }
 
-    public function equipmentsView()
-    {
-        return view('.includes.Equipments.equipmentsview');
-    }
-
-    public function createEquipment()
-    {
-        if (Equipment::count() === 0) {
-        $id = 1;
-        } else {
-            $lastEquipment = Equipment::latest('id')->first();
-            $id = $lastEquipment->id + 1;
-        }
-        $e_id = 'EQUIPID' . str_pad($id, 3, '0', STR_PAD_LEFT);
-        return view('.includes.Equipments.equipmentform', ['e_id' => $e_id]);
-    }
-
-    public function storeEquipment(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|max:50',
-            'brand' => 'required|max:50',
-            'serial' => 'required|unique:Equipments,serial',
-            'price' => 'required|numeric',
-            'purchased_date' => 'required|date',
-        ]);
-        
-        $values = [
-            'id' => Equipment::max('id') + 1,
-            'e_id' => $request->input('e_id'),
-            'name' => $request->input('name'),
-            'brand' => $request->input('brand'),
-            'serial' => $request->input('serial'),
-            'price' => $request->input('price'),
-            'purchased_date' => $request->input('purchased_date'),
-        ];
-        
-        DB::table('Equipments')->insert([$values]);
-
-        return redirect()->route('equipments')->with('success', 'Equipment created successfully.');
-    }
-
-    public function paytransactionsView() 
-    {
-        return view('.includes.Pay_Transactions.paytransactionsview');
-    }
-    
-    public function createPayTransaction() 
-    {
-        return view('.includes.Pay_Transactions.paytransactionform');
-    } 
-
-    public function storePayTransaction(Request $request)
-    {
-        $request->validate([
-            'payer_id' => 'required|max:10',
-            'payee_id' => 'required|max:10',
-            'payment_mode' => 'required|max:20',
-            'pay_date' => 'required|date',
-            'amount' => 'required|numeric',
-            'transaction_id' => 'required|max:20|unique:pay_transactions,transaction_id',
-        ]);
-        
-        $values = [
-            'payer_id' => $request->input('payer_id'),
-            'payee_id' => $request->input('payee_id'),
-            'payment_mode' => $request->input('payment_mode'),
-            'pay_date' => $request->input('pay_date'),
-            'amount' => $request->input('amount'),
-            'transaction_id' => $request->input('transaction_id'),
-        ];
-        
-        DB::table('Pay_Transactions')->insert([$values]);
-
-        return redirect()->route('paytransactions')->with('success', 'Payment Transaction created successfully.');
-    }
-
+    //Trainers
     public function trainersView() 
     {
-        return view('.includes.Trainers.trainersview');
+        $trainers = Trainer::all();
+        return view('.includes.Trainers.trainersview', ['trainers' => $trainers]);
     }
 
     public function createTrainer()
@@ -407,13 +332,209 @@ class AppManager extends Controller {
         return redirect()->route('trainers')->with('success', 'Trainer created successfully.');
     }
 
+    public function editTrainer($id)
+    {
+        $trainer = Trainer::findOrFail($id);
+        $plans = Plan::all();
+
+        return view('.includes.Trainers.edittrainer', ['trainer' => $trainer]);
+    }
+
+    public function updateTrainer(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|max:50',
+            'dob' => 'required|date',
+            'gender' => 'required|in:Male,Female,Other',
+            'experience' => 'required|integer',
+            'address' => 'required|max:50',
+            'mobile' => 'required|max:15',
+            'salary' => 'required|numeric',
+        ]);
+
+        $trainer = Trainer::findOrFail($id);
+
+        $dob = new \DateTime($request->input('dob'));
+        $currentDate = new \DateTime(now());
+        $age = $dob->diff($currentDate)->y;
+
+        $trainer->update([
+            'name' => $request->input('name'),
+            'dob' => $request->input('dob'),
+            'age' => $age,
+            'gender' => $request->input('gender'),
+            'experience' => $request->input('experience'),
+            'address' => $request->input('address'),
+            'mobile' => $request->input('mobile'),
+            'salary' => $request->input('salary'),
+        ]);
+
+        return redirect()->route('trainers')->with('success', 'Trainer updated successfully!');
+    }
+
+    public function deleteTrainer($id)
+    {
+        $trainer = Trainer::findOrFail($id);
+        $trainer->delete();
+
+        return redirect()->route('trainers')->with('success', 'Trainer deleted successfully!');
+    }
+
+    //Equiments
+    public function equipmentsView()
+    {
+        $equipments = Equipment::all();
+     
+        return view('.includes.Equipments.equipmentsview', ['equipments' => $equipments]);
+    }
+
+    public function createEquipment()
+    {
+        if (Equipment::count() === 0) {
+        $id = 1;
+        } else {
+            $lastEquipment = Equipment::latest('id')->first();
+            $id = $lastEquipment->id + 1;
+        }
+        $e_id = 'EQUIPID' . str_pad($id, 3, '0', STR_PAD_LEFT);
+        return view('.includes.Equipments.equipmentform', ['e_id' => $e_id]);
+    }
+
+    public function storeEquipment(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:50',
+            'brand' => 'required|max:50',
+            'serial' => 'required|unique:Equipments,serial',
+            'price' => 'required|numeric',
+            'purchased_date' => 'required|date',
+        ]);
+        
+        $values = [
+            'id' => Equipment::max('id') + 1,
+            'e_id' => $request->input('e_id'),
+            'name' => $request->input('name'),
+            'brand' => $request->input('brand'),
+            'serial' => $request->input('serial'),
+            'price' => $request->input('price'),
+            'purchased_date' => $request->input('purchased_date'),
+        ];
+        
+        DB::table('Equipments')->insert([$values]);
+
+        return redirect()->route('equipments')->with('success', 'Equipment created successfully.');
+    }
+
+    public function editEquipment($id)
+    {
+        $equipment = Equipment::findOrFail($id);
+
+        return view('.includes.Equipments.editequipment', ['equipment' => $equipment]);
+    }
+
+    public function updateEquipment(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|max:50',
+            'brand' => 'required|max:50',
+            'serial' => 'required|unique:Equipments,serial,' . $id,
+            'price' => 'required|numeric',
+            'purchased_date' => 'required|date',
+        ]);
+
+        $equipment = Equipment::findOrFail($id);
+
+        $equipment->update([
+            'name' => $request->input('name'),
+            'brand' => $request->input('brand'),
+            'serial' => $request->input('serial'),
+            'price' => $request->input('price'),
+            'purchased_date' => $request->input('purchased_date'),
+        ]);
+
+        return redirect()->route('equipments')->with('success', 'Equipment updated successfully!');
+    }
+
+    public function deleteEquipment($id)
+    {
+        $equipment = Equipment::findOrFail($id);
+        $equipment->delete();
+
+        return redirect()->route('equipments')->with('success', 'Equipment deleted successfully!');
+    }
+
+    //Pay_Transactions
+    public function paytransactionsView() 
+    {
+        $paytransactions = Pay_Transaction::all();
+        return view('.includes.Pay_Transactions.paytransactionsview', ['paytransactions'=> $paytransactions]);
+    }
+    
+    public function createPayTransaction() 
+    {
+        if (Pay_Transaction::count() === 0) {
+            $id = 1;
+        } else {
+            $lastPayTransaction = Pay_Transaction::latest('id')->first();
+            $id = $lastPayTransaction->id + 1;
+        }
+
+        return view('.includes.Pay_Transactions.paytransactionform', ['id' => $id]);
+    } 
+
+    public function storePayTransaction(Request $request)
+    {
+        $request->validate([
+            'payer_id' => 'required|max:10',
+            'payee_id' => 'required|max:10|different:payer_id',
+            'payment_mode' => 'required|max:20',
+            'pay_date' => 'required|date',
+            'amount' => 'required|numeric',
+            'transaction_id' => 'nullable|max:20|unique:pay_transactions,transaction_id',
+        ]);
+        
+        $values = [
+            'id' => Pay_Transaction::max('id') + 1,
+            'payer_id' => $request->input('payer_id'),
+            'payee_id' => $request->input('payee_id'),
+            'payment_mode' => $request->input('payment_mode'),
+            'pay_date' => $request->input('pay_date'),
+            'amount' => $request->input('amount'),
+            'transaction_id' => $request->input('transaction_id'),
+        ];
+        
+        DB::table('Pay_Transactions')->insert([$values]);
+
+        return redirect()->route('paytransactions')->with('success', 'Payment Transaction created successfully.');
+    }
+
+    public function deletePayTransaction($id)
+    {
+        $paytransaction = Pay_Transaction::findOrFail($id);
+        $paytransaction->delete();
+
+        return redirect()->route('paytransactions')->with('success', 'Payment Transaction deleted successfully!');
+    }
+
+    //Sessions
     public function sessionsView() 
     {
-        return view('.includes.Sessions.sessionsview');
+        $gsessions = GymSession::all();
+        return view('.includes.Sessions.sessionsview', ['gsessions' => $gsessions]);
     }
 
     public function createSession() {
-        return view('.includes.Sessions.sessionform');
+        if (GymSession::count() === 0) {
+            $id = 1;
+        } 
+        else {
+            $lastSession = GymSession::latest('id')->first();
+            $id = $lastSession->id + 1;
+        }
+        $customers = Customer::all();
+        $trainers = Trainer::all();
+
+        return view('.includes.Sessions.sessionform', ['id' => $id, 'customers' => $customers, 'trainers' => $trainers]);
     }
 
     public function storeSession(Request $request)
@@ -428,21 +549,75 @@ class AppManager extends Controller {
                 'c_id.exists' => 'The selected Customer ID is not available in the database.',
                 't_id.exists' => 'The selected Trainer ID is not available in the database.',
             ]);
-        
-            $values = [
+
+            $existingSession = GymSession::where([
+                's_date' => $request->input('s_date'),
+                's_time' => $request->input('s_time'),
+                'c_id' => $request->input('c_id'),
+            ])->first();
+
+            if ($existingSession) {
+                return redirect()->back()->with('error', 'A session with the same date, time, and customer already exists.');
+            }
+
+            GymSession::create([
+                'id' => GymSession::max('id') + 1,
                 's_date' => $request->input('s_date'),
                 's_time' => $request->input('s_time'),
                 'c_id' => $request->input('c_id'),
                 't_id' => $request->input('t_id'),
-            ];
-            
-            DB::table('Sessions')->insert([$values]);
+            ]);
 
             return redirect()->route('sessions')->with('success', 'Session created successfully.');
-        } 
-        catch (ValidationException $e) {
+        } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
-    }   
+    }
+    
+    public function editSession($id)
+    {
+        $gsession = GymSession::findOrFail($id);
+        $customers = Customer::all();
+        $trainers = Trainer::all();
+
+        return view('.includes.Sessions.editsession', ['gsession' => $gsession, 'customers' => $customers, 'trainers' => $trainers]);
+    }
+
+    public function updateSession(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                's_date' => 'required|date',
+                's_time' => 'required|max:20',
+                'c_id' => 'required|exists:customers,c_id',
+                't_id' => 'nullable|exists:trainers,t_id',
+            ], [
+                'c_id.exists' => 'The selected Customer ID is not available in the database.',
+                't_id.exists' => 'The selected Trainer ID is not available in the database.',
+            ]);
+    
+            $gsession = GymSession::findOrFail($id);
+
+            $gsession->update([
+                's_date' => $request->input('s_date'),
+                's_time' => $request->input('s_time'),
+                'c_id' => $request->input('c_id'),
+                't_id' => $request->input('t_id'),
+            ]);
+    
+            return redirect()->route('sessions')->with('success', 'Session updated successfully.');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
+        }
+    }
+
+    public function deleteSession($id)
+    {
+        $gsession = GymSession::findOrFail($id);
+        $gsession->delete();
+
+        return redirect()->route('sessions')->with('success', 'Session deleted successfully!');
+    }
+
 
 }

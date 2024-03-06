@@ -1,12 +1,12 @@
 @extends('homepage')
-@section('title', 'Edit Customer')
+@section('title', 'Edit Customer Details')
 @section('content')
 <div class="detailsform">
     <form action="{{ route('updatecustomer', $customer->id) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
 
-        <h1>Edit Customer</h1>
+        <h1>Edit Customer Details</h1>
         <div class="sep"></div>
 
         <div class="entryform">
@@ -43,7 +43,7 @@
             <br>
 
             <label for="joined">Date Joined:</label>
-            <input style="width: 150px;" type="date" id="joined" name="created_at" value="{{ optional($customer->created_at)->format('Y-m-d') }}" readonly>
+            <input style="width: 150px;" type="date" id="joined" name="created_at" value="{{ $customer->created_at->format('Y-m-d') }}" readonly>
             <br>
 
             <label for="p_id">Plan ID:</label>
@@ -67,7 +67,6 @@
                     <div class="error-message">Validation errors occurred. Please check the form.</div>
                 @endif
             </div>
-
             <br> 
 
             <div class="button-group">

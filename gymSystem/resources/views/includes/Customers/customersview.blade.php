@@ -7,10 +7,10 @@
         <a class="add-button" href="{{route('customerform')}}">
             <button class="add-btn">Add</button>
         </a>
-        <form class="search-bar">
+        <!--        <form class="search-bar">
             <input type="search" placeholder="Search" aria-label="Search">
             <button type="submit">Search</button>
-        </form>
+        </form>-->
         <div class="sep"></div>
     </div>    
     <div class="table-container">

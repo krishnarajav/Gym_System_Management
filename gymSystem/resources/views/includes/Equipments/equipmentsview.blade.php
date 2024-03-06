@@ -7,42 +7,56 @@
         <a class="add-button" href="{{route('equipmentform')}}">
             <button class="add-btn">Add</button>
         </a>
-        <form class="search-bar">
+        <!--        <form class="search-bar">
             <input type="search" placeholder="Search" aria-label="Search">
             <button type="submit">Search</button>
-        </form>
+        </form>-->
         <div class="sep"></div>
     </div>    
-    <table class="customers-table">
-        <thead>
-            <tr>
-                <th>Equipment ID</th>
-                <th>Name</th>
-                <th>Brand</th>
-                <th>Serial No</th>
-                <th>Purchased Date</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-    <!--
-        <tbody>
-        {{--    @foreach($customers as $customer)
-                <tr>
-                    <td>{{ $customer->c_id }}</td>
-                    <td>{{ $customer->name }}</td>
-                    <td>{{ $customer->dob }}</td>
-                    <td>{{ $customer->age }}</td>
-                    <td>{{ $customer->gender }}</td>
-                    <td>{{ $customer->address }}</td>
-                    <td>{{ $customer->mobile }}</td>
-                    <td>{{ $customer->p_id }}</td>
-                    <td>{{ $customer->p_start }}</td>
-                    <td>{{ $customer->p_end }}</td>
+    <div class="table-container">
+        <table class="display-table">
+            <thead>
+                <tr style="height: 50px;">
+                    <th>Equipment ID</th>
+                    <th>Name</th>
+                    <th>Brand</th>
+                    <th>Serial</th>
+                    <th>Purchased Date</th>
+                    <th>Price (INR)</th>
+                    <th style="width: 50px;">Edit</th>
+                    <th style="width: 60px;">Delete</th>
                 </tr>
-            @endforeach
-        --}}
-        </tbody>
-    -->
-    </table>
+            </thead>
+    
+            <tbody>
+                @if(isset($equipments) && count($equipments) > 0)
+                    @foreach($equipments as $equipment)
+                        <tr style="height: 60px;">
+                            <td>{{ $equipment->e_id }}</td>
+                            <td>{{ $equipment->name}}</td>
+                            <td>{{ $equipment->brand}}</td>
+                            <td>{{ $equipment->serial}}</td>
+                            <td>{{ \Carbon\Carbon::parse($equipment->purchased_date)->format('d-m-Y') }}</td>
+                            <td>{{ $equipment->price}}</td>
+                            <td><div class="edit-button"><a href="{{ route('editequipment', $equipment->id) }}">View</a></div></td>
+                            <td>
+                                <div class="delete-button">
+                                    <form action="{{ route('deleteequipment', $equipment->id) }}" method="post">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this equipment?')">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach 
+                @else
+                    <tr>
+                        <td colspan="13">No entries available.</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection
