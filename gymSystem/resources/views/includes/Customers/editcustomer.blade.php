@@ -18,9 +18,18 @@
             <input style="width: 280px;" type="text" id="name" name="name" value="{{ $customer->name }}" required>
             <br>
 
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
             <label for="dob">Date of Birth:</label>
             <input style="width: 150px;" type="date" id="dob" name="dob" value="{{ $customer->dob }}" required>
             <br>
+
+            <script>
+                $(document).ready(function () {
+                    var today = new Date().toISOString().split('T')[0];
+                    $("#dob").attr('max', today);
+                });
+            </script>
 
             <label for="age">Age:</label>
             <input style="width: 150px;" type="number" id="age" name="age" value="{{ $customer->age }}" readonly>
@@ -64,7 +73,7 @@
             
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())
-                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                    <div class="error-message">Validation errors occurred. Please enter the correct details.</div>
                 @endif
             </div>
             <br> 

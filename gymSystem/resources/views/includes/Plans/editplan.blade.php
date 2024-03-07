@@ -32,7 +32,7 @@
             
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())
-                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                    <div class="error-message">Validation errors occurred. Please enter the correct details.</div>
                 @endif
             </div>
 

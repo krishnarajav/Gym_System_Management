@@ -17,9 +17,18 @@
             <input style="width: 280px;" type="text" id="name" name="name" required>
             <br>
 
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
             <label style="width: 140px;" for="dob">Date of Birth:</label>
             <input style="width: 150px;" type="date" id="dob" name="dob" required>
             <br>
+
+            <script>
+                $(document).ready(function () {
+                    var today = new Date().toISOString().split('T')[0];
+                    $("#dob").attr('max', today);
+                });
+            </script>
 
             <label style="width: 140px;" for="gender">Gender:</label>
             <select id="gender" name="gender" required>
@@ -47,7 +56,7 @@
 
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())
-                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                    <div class="error-message">Validation errors occurred. Please enter the correct details.</div>
                 @endif
             </div>
             <br>

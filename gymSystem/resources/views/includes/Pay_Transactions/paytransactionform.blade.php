@@ -25,9 +25,18 @@
             </select>
             <br>
 
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
             <label style="width: 110px;" for="pay_date">Payment Date:</label>
             <input style="width: 150px;" type="date" id="pay_date" name="pay_date" required>
             <br>
+
+            <script>
+                $(document).ready(function () {
+                    var today = new Date().toISOString().split('T')[0];
+                    $("#pay_date").attr('max', today);
+                });
+            </script>
 
             <label style="width: 110px;" for="amount">Amount (INR):</label>
             <input type="number" step="0.01" id="amount" name="amount" required>
@@ -39,7 +48,7 @@
 
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())
-                    <div class="error-message">Validation errors occurred. Please check the form.</div>
+                    <div class="error-message">Validation errors occurred. Please enter the correct details.</div>
                 @endif
             </div>
             <br>

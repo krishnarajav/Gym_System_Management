@@ -239,20 +239,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: 2px solid #ffffff88;
     padding: 5px;
     text-align: center;
+    background-color: #5555559e;
+    color: #ddd;
 }
 
 .display-table td {
     border: 2px solid #ffffff88;
     padding: 5px;
     text-align: center;
-}
-
-.display-table th {
-    background-color: #5555559e;
-    color: #ddd;
-}
-
-.display-table tr {
     background-color: #28282885;
     color: #ddd;
 }
@@ -280,6 +274,7 @@ td .edit-button {
     height: 26px;
     font-size: 1em;
     border: none;
+    border-radius: 2px;
 }
 
 

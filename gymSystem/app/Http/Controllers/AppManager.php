@@ -485,8 +485,25 @@ class AppManager extends Controller {
     public function storePayTransaction(Request $request)
     {
         $request->validate([
-            'payer_id' => 'required|max:10',
-            'payee_id' => 'required|max:10|different:payer_id',
+            'payer_id' => [
+                'required',
+                'max:10',
+                function ($attribute, $value, $fail) {
+                    if (!Customer::where('c_id', $value)->exists() && !Admin::where('id', $value)->exists()) {
+                        $fail("Invalid Payer ID");
+                    }
+                },
+            ],
+            'payee_id' => [
+                'required',
+                'max:10',
+                'different:payer_id',
+                function ($attribute, $value, $fail) {
+                    if (!Admin::where('id', $value)->exists() && !Trainer::where('t_id', $value)->exists()) {
+                        $fail("Invalid Payee ID");
+                    }
+                },
+            ],
             'payment_mode' => 'required|max:20',
             'pay_date' => 'required|date',
             'amount' => 'required|numeric',
