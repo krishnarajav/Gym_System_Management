@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: url('images/login.jpg') center/cover no-repeat fixed;
+            background: url('images/logged_out.jpg') center/cover no-repeat fixed;
         }
 
         .registration-container {

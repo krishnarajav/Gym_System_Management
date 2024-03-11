@@ -39,7 +39,7 @@
             </script>
 
             <label style="width: 110px;" for="amount">Amount (INR):</label>
-            <input type="number" step="0.01" id="amount" name="amount" required>
+            <input type="number" step="0.01" min="0" id="amount" name="amount" required>
             <br>
     
             <label style="width: 110px;" for="transaction_id">Transaction ID:</label>

@@ -8,7 +8,7 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement('
-            create table Sessions (
+            create table Gym_Sessions (
                 id int,
                 s_date date,
                 s_time varchar(30), 

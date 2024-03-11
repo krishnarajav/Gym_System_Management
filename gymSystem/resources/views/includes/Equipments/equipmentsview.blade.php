@@ -23,7 +23,7 @@
                     <th>Serial</th>
                     <th>Purchased Date</th>
                     <th>Price (INR)</th>
-                    <th style="width: 50px;">Edit</th>
+                    <th style="width: 50px;">View / Edit</th>
                     <th style="width: 60px;">Delete</th>
                 </tr>
             </thead>

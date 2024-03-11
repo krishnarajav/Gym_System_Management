@@ -1,15 +1,18 @@
 @extends('homepage')
-@section('title', 'Edit Session Details')
+@section('title', 'Session Details')
 @section('content')
 <div class="detailsform">
     <form action="{{ route('updatesession', $gsession->id) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
 
-        <h1>Edit Session Details</h1>
+        <h1>Session Details</h1>
         <div class="sep"></div>
 
         <div class="entryform">
+            <p style="font-style: italic; color: #aaa;">Last updated at: {{ \Carbon\Carbon::parse($gsession->updated_at)->format('d-m-Y h:i:s A') }}</p>
+            <br>
+
             <label for="s_date">Date:</label>
             <input style="width: 150px;" type="date" id="s_date" name="s_date" value="{{ $gsession->s_date }}" required>
             <br>
@@ -59,7 +62,7 @@
             <br>
 
             <div class="button-group">
-                <a class="cancel-button" href="{{ route('sessions') }}">Cancel</a>
+                <a class="cancel-button" href="{{ route('sessions') }}">Back</a>
                 <button type="submit">Update</button>
             </div>
         </div>

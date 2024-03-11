@@ -2,13 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppManager;
-use App\Models\Admin;
-use App\Models\Customer;
-use App\Models\Trainer;
-use App\Models\Equipment;
-use App\Models\Plan;
-use App\Models\GymSession;
-use App\Models\Pay_Transaction;
 
 Route::get('/', [AppManager::class, 'login'])->name('login');
 Route::post('/home', [AppManager::class, 'loginPost'])->name('login.post');
@@ -22,9 +15,7 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [AppManager::class, 'showHomepage'])->name('homepage');
-});
 
-Route::middleware(['auth'])->group(function () {
     Route::get('/plansview', [AppManager::class, 'plansView'])->name('plans');
     Route::get('/plandetailsform', [AppManager::class, 'createPlan'])->name('planform');
     Route::post('/storePlan', [AppManager::class, 'storePlan'])->name('storeplan');

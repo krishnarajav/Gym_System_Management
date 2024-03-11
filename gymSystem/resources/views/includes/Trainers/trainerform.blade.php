@@ -36,7 +36,15 @@
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
             </select>
-            <br>    
+            <br>   
+            
+            <label style="width: 140px;" for="height">Height (cm):</label>
+            <input style="width: 150px;" min="0" type="number" id="height" name="height" required>
+            <br>
+
+            <label style="width: 140px;" for="weight">Weight (kg):</label>
+            <input style="width: 150px;" min="0" type="number" id="weight" name="weight" required>
+            <br>
     
             <label style="width: 140px;" for="address">Address:</label>
             <input style="width: 800px;" type="text" id="address" name="address" required>
@@ -47,11 +55,11 @@
             <br>
 
             <label style="width: 140px;" for="salary">Experience (Years):</label>
-            <input type="number" id="experience" name="experience" required>
+            <input type="number" min="0" id="experience" name="experience" required>
             <br>
             
             <label style="width: 140px;" for="salary">Monthly Salary (INR):</label>
-            <input type="number" step="0.01" id="salary" name="salary" required>
+            <input type="number" step="0.01" min="0" id="salary" name="salary" required>
             <br><br>
 
             <div style="color: rgb(233, 5, 5);">

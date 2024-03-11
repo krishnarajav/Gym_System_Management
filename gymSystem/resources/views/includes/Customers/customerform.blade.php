@@ -37,6 +37,14 @@
                 <option value="Other">Other</option>
             </select>
             <br>
+
+            <label for="height">Height (cm):</label>
+            <input style="width: 150px;" type="number" min="0" id="height" name="height" required>
+            <br>
+
+            <label for="weight">Weight (kg):</label>
+            <input style="width: 150px;" type="number" min="0" id="weight" name="weight" required>
+            <br>
     
             <label for="address">Address:</label>
             <input style="width: 800px;" type="text" id="address" name="address" required>

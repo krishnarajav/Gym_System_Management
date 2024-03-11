@@ -42,7 +42,7 @@
                                     <form action="{{ route('deletepaytransaction', $paytransaction->id) }}" method="post">
                                         @csrf
                                         @method('delete')
-                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this paytransaction?')">Delete</button>
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</button>
                                     </form>
                                 </div>
                             </td>

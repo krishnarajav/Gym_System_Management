@@ -16,20 +16,14 @@
             <label for="s_time">Time:</label>
             <select style="width: 180px;" id="s_time" name="s_time" required>
                 <option value="06:00 AM - 07:00 AM">06:00 AM - 07:00 AM</option>
-                <option value="06:00 AM - 08:00 AM">06:00 AM - 08:00 AM</option>
                 <option value="07:00 AM - 08:00 AM">07:00 AM - 08:00 AM</option>
-                <option value="07:00 AM - 09:00 AM">07:00 AM - 09:00 AM</option>
                 <option value="08:00 AM - 09:00 AM">08:00 AM - 09:00 AM</option>
-                <option value="08:00 AM - 10:00 AM">08:00 AM - 10:00 AM</option>
                 <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
                 <option value="01:00 PM - 02:00 PM">01:00 PM - 02:00 PM</option>
-                <option value="01:00 PM - 03:00 PM">01:00 PM - 03:00 PM</option>
+                <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
                 <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
-                <option value="05:00 PM - 07:00 PM">05:00 PM - 07:00 PM</option>
                 <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM</option>
-                <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
                 <option value="07:00 PM - 08:00 PM">07:00 PM - 08:00 PM</option>
-                <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
                 <option value="08:00 PM - 09:00 PM">08:00 PM - 09:00 PM</option>
             </select>
             <br>

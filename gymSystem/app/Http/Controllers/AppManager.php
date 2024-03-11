@@ -16,6 +16,7 @@ use App\Models\Equipment;
 use App\Models\Plan;
 use App\Models\GymSession;
 use App\Models\Pay_Transaction;
+use App\Models\Personal_Details;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
@@ -24,6 +25,7 @@ class AppManager extends Controller {
         if (Auth::check()) {
             return redirect(route('homepage'));
         }
+
         return view('login');
     }
 
@@ -31,6 +33,7 @@ class AppManager extends Controller {
         if (Auth::check()) {
             return redirect(route('homepage'));
         }
+
         return view('registration');
     }
 
@@ -47,6 +50,7 @@ class AppManager extends Controller {
             $customers = Customer::all();
             return view('.includes.Customers.customersview', ['customers' => $customers]);
         }
+
         return redirect(route('login'))->with('error', 'Login details are not valid.');
     }
 
@@ -59,6 +63,7 @@ class AppManager extends Controller {
 
         if ($validator->fails()) {
             $errorMessage = $validator->errors()->first();
+
             return redirect(route('registration'))->with('error', $errorMessage);
         }
 
@@ -69,69 +74,76 @@ class AppManager extends Controller {
         if(!$admin){
             return redirect(route('registration'))->with('error', 'Registration failed, try again.');
         }
+
         return redirect(route('login'))->with('success', 'Registration successful. Login to access the application.');
     }
 
     function logout() {
         Session::flush();
         Auth::logout();
+
         return redirect(route('login'));
     }
 
     public function showHomepage()
     {
-        $customers = Customer::all();
+        $customers = DB::select("SELECT * FROM Customers");
+
         return view('.includes.Customers.customersview', ['customers' => $customers]);
     }
 
     //Plans
     public function plansView()
     {
+        $plans = DB::select("SELECT * FROM Plans");
 
-        $plans = Plan::all();
         return view('.includes.Plans.plansview', ['plans' => $plans]);
     }
 
     public function createPlan()
     {
-        if (Plan::count() === 0) {
-        $id = 1;
-        } else {
-            $lastPlan = Plan::latest('id')->first();
-            $id = $lastPlan->id + 1;
+        $result = DB::select("SELECT MAX(id) as max_id FROM Plans");
+        if (empty($result) || $result[0]->max_id === null) {
+            $id = 1;
+        } 
+        else {
+            $id = $result[0]->max_id + 1;
         }
         $p_id = 'PID' . str_pad($id, 3, '0', STR_PAD_LEFT);
+
         return view('.includes.Plans.planform', ['p_id' => $p_id]);
     }
 
     public function storePlan(Request $request)
     {
         $request->validate([
-            'p_id' => 'required|unique:Plans,p_id',
+            'p_id' => 'required|unique:plans,p_id',
             'name' => 'required|max:50',
             'period' => 'required|numeric',
             'price' => 'required|numeric',
         ]);
-        
-        $values = [
-            'id' => Plan::max('id') + 1,
-            'p_id' => $request->input('p_id'),
-            'name' => $request->input('name'),
-            'period' => $request->input('period'),
-            'price' => $request->input('price'),
-        ];
-        
-        DB::table('Plans')->insert([$values]);
+        DB::insert(
+            "INSERT INTO Plans (id, p_id, name, period, price) 
+            VALUES (?, ?, ?, ?, ?)",
+            [
+                DB::table('Plans')->max('id') + 1,
+                $request->input('p_id'),
+                $request->input('name'),
+                $request->input('period'),
+                $request->input('price'),
+            ]
+        );
 
         return redirect()->route('plans')->with('success', 'Plan created successfully.');
     }
 
     public function editPlan($id)
     {
-        $plan = Plan::findOrFail($id);
+        $plan = DB::select("SELECT * FROM Plans WHERE id = ?", [$id])[0];
 
         return view('.includes.Plans.editplan', ['plan' => $plan]);
     }
+
 
     public function updatePlan(Request $request, $id)
     {
@@ -140,51 +152,62 @@ class AppManager extends Controller {
             'period' => 'required|numeric',
             'price' => 'required|numeric',
         ]);
-
-        $plan = Plan::findOrFail($id);
-
-        $plan->update([
-            'name' => $request->input('name'),
-            'period' => $request->input('period'),
-            'price' => $request->input('price'),
-        ]);
+        DB::update(
+            "UPDATE Plans 
+            SET name = ?, period = ?, price = ? 
+            WHERE id = ?",
+            [
+                $request->input('name'), 
+                $request->input('period'), 
+                $request->input('price'), 
+                $id
+            ]
+        );
 
         return redirect()->route('plans')->with('success', 'Plan updated successfully!');
     }
 
     public function deletePlan($id)
     {
-        $plan = Plan::findOrFail($id);
-        $customers = Customer::where('p_id', $plan->p_id)->get();
+        $plan = DB::select("SELECT * FROM Plans WHERE id = ?", [$id])[0];
+        $customers = DB::select("SELECT * FROM Customers WHERE p_id = ?", [$plan->p_id]);
         foreach ($customers as $customer) {
-            $customer->update([
-                'p_id' => null,
-                'p_start' => null,
-                'p_end' => null,
-            ]);
+            DB::update(
+                "UPDATE Customers 
+                SET p_id = null, p_start = null, p_end = null, p_status = 'EXPIRED'
+                WHERE id = ?",
+                [$customer->id]
+            );
         }
-        $plan->delete();
+        DB::delete("DELETE FROM Plans WHERE id = ?", [$id]);
 
         return redirect()->route('plans')->with('success', 'Plan deleted successfully!');
     }
 
     //Customers
-    public function customersView() 
+    public function customersView()
     {
-        $customers = Customer::all();
+        $customers = DB::select(
+            "SELECT Customers.*, Personal_Details.*
+            FROM Customers
+            LEFT JOIN Personal_Details ON Customers.c_id = Personal_Details.c_id"
+        );
+
         return view('.includes.Customers.customersview', ['customers' => $customers]);
     }
 
     public function createCustomer()
     {
-        if (Customer::count() === 0) {
-        $id = 1;
-        } else {
-            $lastCustomer = Customer::latest('id')->first();
-            $id = $lastCustomer->id + 1;
+        $result = DB::select("SELECT MAX(id) as max_id FROM Customers");
+        if (empty($result) || $result[0]->max_id === null) {
+            $id = 1;
+        } 
+        else {
+            $id = $result[0]->max_id + 1;
         }
         $c_id = 'CID' . str_pad($id, 3, '0', STR_PAD_LEFT);
-        $plans = Plan::all();
+        $plans = DB::select("SELECT * FROM Plans");
+
         return view('.includes.Customers.customerform', ['c_id' => $c_id, 'plans' => $plans]);
     }
 
@@ -194,43 +217,66 @@ class AppManager extends Controller {
             'name' => 'required|max:50',
             'dob' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
             'address' => 'required|max:50',
             'mobile' => 'required|max:15',
             'p_id' => 'required|exists:plans,p_id', 
             'p_start' => 'required|date',
         ]);
-    
+
         $dob = new \DateTime($request->input('dob'));
         $currentDate = new \DateTime(now());
         $age = $dob->diff($currentDate)->y;
-
-        $plan = Plan::where('p_id', $request->input('p_id'))->first();
+        $plan = DB::table('Plans')->where('p_id', $request->input('p_id'))->first();
         $p_start = Carbon::parse($request->input('p_start'));
         $p_end = $p_start->copy()->addDays($plan->period);
-        
-        $values = [
-            'id' => Customer::max('id') + 1,
-            'c_id' => $request->input('c_id'),
-            'name' => $request->input('name'),
-            'dob' => $request->input('dob'),
-            'age' => $age,
-            'gender' => $request->input('gender'),
-            'address' => $request->input('address'),
-            'mobile' => $request->input('mobile'),
-            'p_id' => $request->input('p_id'),
-            'p_start' => $request->input('p_start'),
-            'p_end' => $p_end->toDateString(),
-        ];
-    
-        DB::table('Customers')->insert([$values]);
+        $p_status = 'ACTIVE';
 
+        DB::insert(
+            "INSERT INTO Customers (id, c_id, p_id, p_start, p_end, p_status) 
+             VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                DB::table('Customers')->max('id') + 1,
+                $request->input('c_id'),
+                $request->input('p_id'),
+                $request->input('p_start'),
+                $p_end,
+                $p_status
+            ]
+        );
+
+        $t_id = null;
+        DB::insert(
+            "INSERT INTO Personal_Details (c_id, t_id, name, dob, age, gender, height, weight, address, mobile) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            $request->input('c_id'),
+            $t_id,
+            $request->input('name'),
+            $request->input('dob'),
+            $age,
+            $request->input('gender'),
+            $request->input('height'),
+            $request->input('weight'),
+            $request->input('address'),
+            $request->input('mobile'),
+        ]
+    );
+    
         return redirect()->route('customers')->with('success', 'Customer created successfully.');
     } 
 
     public function editCustomer($id)
     {
-        $customer = Customer::findOrFail($id);
-        $plans = Plan::all();
+        $customerdetails = DB::select(
+            "SELECT Customers.*, Personal_Details.*
+            FROM Customers
+            LEFT JOIN Personal_Details ON Customers.c_id = Personal_Details.c_id
+            WHERE Customers.id = ?",[$id]
+        );
+        $customer = $customerdetails[0];
+        $plans = DB::select("SELECT * FROM Plans");
 
         return view('.includes.Customers.editcustomer', ['customer' => $customer, 'plans' => $plans]);
     }
@@ -241,40 +287,63 @@ class AppManager extends Controller {
             'name' => 'required|max:50',
             'dob' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
             'address' => 'required|max:50',
             'mobile' => 'required|max:15',
             'p_id' => 'required|exists:plans,p_id', 
             'p_start' => 'required|date',
         ]);
 
-        $customer = Customer::findOrFail($id);
-
         $dob = new \DateTime($request->input('dob'));
         $currentDate = new \DateTime(now());
         $age = $dob->diff($currentDate)->y;
-
-        $plan = Plan::where('p_id', $request->input('p_id'))->first();
+        $plan = DB::table('Plans')->where('p_id', $request->input('p_id'))->first();
         $p_start = Carbon::parse($request->input('p_start'));
         $p_end = $p_start->copy()->addDays($plan->period);
+        $p_status = 'ACTIVE';
+        
+        DB::update(
+            "UPDATE Customers 
+            SET p_id = ?, p_start = ?, p_end = ?, p_status = ?, updated_at = NOW()
+            WHERE id = ?",
+            [
+                $request->input('p_id'),
+                $request->input('p_start'),
+                $p_end,
+                $p_status,
+                $id
+            ]
+        );   
 
-        $customer->update([
-            'name' => $request->input('name'),
-            'dob' => $request->input('dob'),
-            'gender' => $request->input('gender'),
-            'address' => $request->input('address'),
-            'mobile' => $request->input('mobile'),
-            'p_id' => $request->input('p_id'),
-            'p_start' => $request->input('p_start'),
-            'p_end' => $p_end->toDateString(),
-        ]);
+        $c_id = DB::select(
+            "SELECT c_id from Customers
+            where id = ?",[$id]
+        )[0]->c_id;
+
+        DB::update(
+            "UPDATE Personal_Details 
+            SET name = ?, dob = ?, age = ?, gender = ?, height = ?, weight = ?, address = ?, mobile = ?, updated_at = NOW()
+            WHERE c_id = ?",
+            [
+                $request->input('name'),
+                $request->input('dob'),
+                $age,
+                $request->input('gender'),
+                $request->input('height'),
+                $request->input('weight'),
+                $request->input('address'),
+                $request->input('mobile'),
+                $c_id
+            ]
+        );   
 
         return redirect()->route('customers')->with('success', 'Customer updated successfully!');
     }
 
     public function deleteCustomer($id)
     {
-        $customer = Customer::findOrFail($id);
-        $customer->delete();
+        DB::delete("DELETE FROM Customers WHERE id = :id", ['id' => $id]);
 
         return redirect()->route('customers')->with('success', 'Customer deleted successfully!');
     }
@@ -282,19 +351,26 @@ class AppManager extends Controller {
     //Trainers
     public function trainersView() 
     {
-        $trainers = Trainer::all();
+        $trainers = DB::select(
+            "SELECT Trainers.*, Personal_Details.*
+            FROM Trainers
+            LEFT JOIN Personal_Details ON Trainers.t_id = Personal_Details.t_id"
+        );
+
         return view('.includes.Trainers.trainersview', ['trainers' => $trainers]);
     }
 
     public function createTrainer()
     {
-        if (Trainer::count() === 0) {
-        $id = 1;
-        } else {
-            $lastTrainer = Trainer::latest('id')->first();
-            $id = $lastTrainer->id + 1;
+        $result = DB::select("SELECT MAX(id) as max_id FROM Trainers");
+        if (empty($result) || $result[0]->max_id === null) {
+            $id = 1;
+        } 
+        else {
+            $id = $result[0]->max_id + 1;
         }
         $t_id = 'TID' . str_pad($id, 3, '0', STR_PAD_LEFT);
+
         return view('.includes.Trainers.trainerform', ['t_id' => $t_id]);
     }
 
@@ -304,38 +380,59 @@ class AppManager extends Controller {
             'name' => 'required|max:50',
             'dob' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
             'experience' => 'required|integer',
             'address' => 'required|max:50',
             'mobile' => 'required|max:15',
             'salary' => 'required|numeric',
         ]);
-    
+
         $dob = new \DateTime($request->input('dob'));
         $currentDate = new \DateTime(now());
         $age = $dob->diff($currentDate)->y;
         
-        $values = [
-            'id' => Trainer::max('id') + 1,
-            't_id' => $request->input('t_id'),
-            'name' => $request->input('name'),
-            'dob' => $request->input('dob'),
-            'age' => $age,
-            'gender' => $request->input('gender'),
-            'experience' => $request->input('experience'),
-            'address' => $request->input('address'),
-            'mobile' => $request->input('mobile'),
-            'salary' => $request->input('salary'),
-        ];
-        
-        DB::table('Trainers')->insert([$values]);
+        DB::insert(
+            "INSERT INTO Trainers (id, t_id, experience, salary) 
+             VALUES (?, ?, ?, ?)",
+            [
+                DB::table('Trainers')->max('id') + 1,
+                $request->input('t_id'),
+                $request->input('experience'),
+                $request->input('salary'),
+            ]
+        );
+
+        $c_id = null;
+        DB::insert(
+            "INSERT INTO Personal_Details (c_id, t_id, name, dob, age, gender, height, weight, address, mobile) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                $c_id,
+                $request->input('t_id'),
+                $request->input('name'),
+                $request->input('dob'),
+                $age,
+                $request->input('gender'),
+                $request->input('height'),
+                $request->input('weight'),
+                $request->input('address'),
+                $request->input('mobile'),
+            ]
+        );
 
         return redirect()->route('trainers')->with('success', 'Trainer created successfully.');
     }
 
     public function editTrainer($id)
     {
-        $trainer = Trainer::findOrFail($id);
-        $plans = Plan::all();
+        $trainerdetails = DB::select(
+            "SELECT Trainers.*, Personal_Details.*
+            FROM Trainers
+            LEFT JOIN Personal_Details ON Trainers.t_id = Personal_Details.t_id
+            WHERE Trainers.id = ?",[$id]
+        );
+        $trainer = $trainerdetails[0];
 
         return view('.includes.Trainers.edittrainer', ['trainer' => $trainer]);
     }
@@ -346,36 +443,57 @@ class AppManager extends Controller {
             'name' => 'required|max:50',
             'dob' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
-            'experience' => 'required|integer',
+            'height' => 'required|numeric',
+            'weight' => 'required|numeric',
             'address' => 'required|max:50',
             'mobile' => 'required|max:15',
+            'experience' => 'required|integer',
             'salary' => 'required|numeric',
         ]);
-
-        $trainer = Trainer::findOrFail($id);
 
         $dob = new \DateTime($request->input('dob'));
         $currentDate = new \DateTime(now());
         $age = $dob->diff($currentDate)->y;
 
-        $trainer->update([
-            'name' => $request->input('name'),
-            'dob' => $request->input('dob'),
-            'age' => $age,
-            'gender' => $request->input('gender'),
-            'experience' => $request->input('experience'),
-            'address' => $request->input('address'),
-            'mobile' => $request->input('mobile'),
-            'salary' => $request->input('salary'),
-        ]);
+        DB::update(
+            "UPDATE Trainers
+            SET experience = ?, salary = ?, updated_at = NOW()
+            WHERE id = ?",
+            [
+                $request->input('experience'),
+                $request->input('salary'),
+                $id
+            ]
+        ); 
+
+        $t_id = DB::select(
+            "SELECT t_id from Trainers
+            where id = ?",[$id]
+        )[0]->t_id;
+
+        DB::update(
+            "UPDATE Personal_Details 
+            SET name = ?, dob = ?, age = ?, gender = ?, height = ?, weight = ?, address = ?, mobile = ?, updated_at = NOW()
+            WHERE t_id = ?",
+            [
+                $request->input('name'),
+                $request->input('dob'),
+                $age,
+                $request->input('gender'),
+                $request->input('height'),
+                $request->input('weight'),
+                $request->input('address'),
+                $request->input('mobile'),
+                $t_id
+            ]
+        );
 
         return redirect()->route('trainers')->with('success', 'Trainer updated successfully!');
     }
 
     public function deleteTrainer($id)
     {
-        $trainer = Trainer::findOrFail($id);
-        $trainer->delete();
+        DB::delete("DELETE FROM Trainers WHERE id = :id", ['id' => $id]);
 
         return redirect()->route('trainers')->with('success', 'Trainer deleted successfully!');
     }
@@ -383,20 +501,22 @@ class AppManager extends Controller {
     //Equiments
     public function equipmentsView()
     {
-        $equipments = Equipment::all();
+        $equipments = DB::select("SELECT * FROM Equipments");
      
         return view('.includes.Equipments.equipmentsview', ['equipments' => $equipments]);
     }
 
     public function createEquipment()
     {
-        if (Equipment::count() === 0) {
-        $id = 1;
-        } else {
-            $lastEquipment = Equipment::latest('id')->first();
-            $id = $lastEquipment->id + 1;
+        $result = DB::select("SELECT MAX(id) as max_id FROM Equipments");
+        if (empty($result) || $result[0]->max_id === null) {
+            $id = 1;
+        } 
+        else {
+            $id = $result[0]->max_id + 1;
         }
-        $e_id = 'EQUIPID' . str_pad($id, 3, '0', STR_PAD_LEFT);
+        $e_id = 'EQPID' . str_pad($id, 3, '0', STR_PAD_LEFT);
+
         return view('.includes.Equipments.equipmentform', ['e_id' => $e_id]);
     }
 
@@ -409,25 +529,27 @@ class AppManager extends Controller {
             'price' => 'required|numeric',
             'purchased_date' => 'required|date',
         ]);
-        
-        $values = [
-            'id' => Equipment::max('id') + 1,
-            'e_id' => $request->input('e_id'),
-            'name' => $request->input('name'),
-            'brand' => $request->input('brand'),
-            'serial' => $request->input('serial'),
-            'price' => $request->input('price'),
-            'purchased_date' => $request->input('purchased_date'),
-        ];
-        
-        DB::table('Equipments')->insert([$values]);
+
+        DB::insert(
+            "INSERT INTO Equipments (id, e_id, name, brand, serial, price, purchased_date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                DB::table('Equipments')->max('id') + 1,
+                $request->input('e_id'),
+                $request->input('name'),
+                $request->input('brand'),
+                $request->input('serial'),
+                $request->input('price'),
+                $request->input('purchased_date'),
+            ]
+        );
 
         return redirect()->route('equipments')->with('success', 'Equipment created successfully.');
     }
 
     public function editEquipment($id)
     {
-        $equipment = Equipment::findOrFail($id);
+        $equipment = DB::select("SELECT * FROM Equipments WHERE id = ?", [$id])[0];
 
         return view('.includes.Equipments.editequipment', ['equipment' => $equipment]);
     }
@@ -441,24 +563,26 @@ class AppManager extends Controller {
             'price' => 'required|numeric',
             'purchased_date' => 'required|date',
         ]);
-
-        $equipment = Equipment::findOrFail($id);
-
-        $equipment->update([
-            'name' => $request->input('name'),
-            'brand' => $request->input('brand'),
-            'serial' => $request->input('serial'),
-            'price' => $request->input('price'),
-            'purchased_date' => $request->input('purchased_date'),
-        ]);
+        DB::update(
+            "UPDATE equipments 
+            SET name = ?, brand = ?, serial = ?, price = ?, purchased_date = ? 
+            WHERE id = ?",
+            [
+                $request->input('name'),
+                $request->input('brand'),
+                $request->input('serial'),
+                $request->input('price'),
+                $request->input('purchased_date'),
+                $id
+            ]
+        );
 
         return redirect()->route('equipments')->with('success', 'Equipment updated successfully!');
     }
 
     public function deleteEquipment($id)
     {
-        $equipment = Equipment::findOrFail($id);
-        $equipment->delete();
+        DB::delete("DELETE FROM Equipments WHERE id = :id", ['id' => $id]);
 
         return redirect()->route('equipments')->with('success', 'Equipment deleted successfully!');
     }
@@ -466,17 +590,19 @@ class AppManager extends Controller {
     //Pay_Transactions
     public function paytransactionsView() 
     {
-        $paytransactions = Pay_Transaction::all();
+        $paytransactions = DB::select("SELECT * FROM Pay_Transactions");
+
         return view('.includes.Pay_Transactions.paytransactionsview', ['paytransactions'=> $paytransactions]);
     }
     
     public function createPayTransaction() 
     {
-        if (Pay_Transaction::count() === 0) {
+        $result = DB::select("SELECT MAX(id) as max_id FROM Pay_Transactions");
+        if (empty($result) || $result[0]->max_id === null) {
             $id = 1;
-        } else {
-            $lastPayTransaction = Pay_Transaction::latest('id')->first();
-            $id = $lastPayTransaction->id + 1;
+        } 
+        else {
+            $id = $result[0]->max_id + 1;
         }
 
         return view('.includes.Pay_Transactions.paytransactionform', ['id' => $id]);
@@ -498,7 +624,13 @@ class AppManager extends Controller {
                 'required',
                 'max:10',
                 'different:payer_id',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($request) {
+                    $payerId = $request->input('payer_id');
+    
+                    if (Customer::where('c_id', $payerId)->exists() && !Admin::where('id', $value)->exists()) {
+                        $fail("Invalid Payee ID.");
+                    }
+    
                     if (!Admin::where('id', $value)->exists() && !Trainer::where('t_id', $value)->exists()) {
                         $fail("Invalid Payee ID");
                     }
@@ -509,26 +641,26 @@ class AppManager extends Controller {
             'amount' => 'required|numeric',
             'transaction_id' => 'nullable|max:20|unique:pay_transactions,transaction_id',
         ]);
-        
-        $values = [
-            'id' => Pay_Transaction::max('id') + 1,
-            'payer_id' => $request->input('payer_id'),
-            'payee_id' => $request->input('payee_id'),
-            'payment_mode' => $request->input('payment_mode'),
-            'pay_date' => $request->input('pay_date'),
-            'amount' => $request->input('amount'),
-            'transaction_id' => $request->input('transaction_id'),
-        ];
-        
-        DB::table('Pay_Transactions')->insert([$values]);
+        DB::insert(
+            "INSERT INTO Pay_Transactions (id, payer_id, payee_id, payment_mode, pay_date, amount, transaction_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                DB::table('Pay_Transactions')->max('id') + 1,
+                $request->input('payer_id'),
+                $request->input('payee_id'),
+                $request->input('payment_mode'),
+                $request->input('pay_date'),
+                $request->input('amount'),
+                $request->input('transaction_id'),
+            ]
+        );
 
         return redirect()->route('paytransactions')->with('success', 'Payment Transaction created successfully.');
     }
 
     public function deletePayTransaction($id)
     {
-        $paytransaction = Pay_Transaction::findOrFail($id);
-        $paytransaction->delete();
+        DB::delete("DELETE FROM Pay_Transactions WHERE id = :id", ['id' => $id]);
 
         return redirect()->route('paytransactions')->with('success', 'Payment Transaction deleted successfully!');
     }
@@ -536,20 +668,21 @@ class AppManager extends Controller {
     //Sessions
     public function sessionsView() 
     {
-        $gsessions = GymSession::all();
+        $gsessions = DB::select("SELECT * FROM Gym_Sessions");
+
         return view('.includes.Sessions.sessionsview', ['gsessions' => $gsessions]);
     }
 
     public function createSession() {
-        if (GymSession::count() === 0) {
+        $result = DB::select("SELECT MAX(id) as max_id FROM Gym_Sessions");
+        if (empty($result) || $result[0]->max_id === null) {
             $id = 1;
         } 
         else {
-            $lastSession = GymSession::latest('id')->first();
-            $id = $lastSession->id + 1;
+            $id = $result[0]->max_id + 1;
         }
-        $customers = Customer::all();
-        $trainers = Trainer::all();
+        $customers = DB::select("SELECT * FROM Customers");
+        $trainers = DB::select("SELECT * FROM Trainers");
 
         return view('.includes.Sessions.sessionform', ['id' => $id, 'customers' => $customers, 'trainers' => $trainers]);
     }
@@ -576,26 +709,30 @@ class AppManager extends Controller {
             if ($existingSession) {
                 return redirect()->back()->with('error', 'A session with the same date, time, and customer already exists.');
             }
-
-            GymSession::create([
-                'id' => GymSession::max('id') + 1,
-                's_date' => $request->input('s_date'),
-                's_time' => $request->input('s_time'),
-                'c_id' => $request->input('c_id'),
-                't_id' => $request->input('t_id'),
-            ]);
+            DB::insert(
+                "INSERT INTO Gym_Sessions (id, s_date, s_time, c_id, t_id) 
+                VALUES (?, ?, ?, ?, ?)",
+                [
+                    DB::table('Gym_Sessions')->max('id') + 1,
+                    $request->input('s_date'),
+                    $request->input('s_time'),
+                    $request->input('c_id'),
+                    $request->input('t_id'),
+                ]
+            );
 
             return redirect()->route('sessions')->with('success', 'Session created successfully.');
-        } catch (ValidationException $e) {
+        } 
+        catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
     }
     
     public function editSession($id)
     {
-        $gsession = GymSession::findOrFail($id);
-        $customers = Customer::all();
-        $trainers = Trainer::all();
+        $gsession = DB::select("SELECT * FROM Gym_Sessions WHERE id = ?", [$id])[0];
+        $customers = DB::select("SELECT * FROM Customers");
+        $trainers = DB::select("SELECT * FROM Trainers");
 
         return view('.includes.Sessions.editsession', ['gsession' => $gsession, 'customers' => $customers, 'trainers' => $trainers]);
     }
@@ -612,29 +749,31 @@ class AppManager extends Controller {
                 'c_id.exists' => 'The selected Customer ID is not available in the database.',
                 't_id.exists' => 'The selected Trainer ID is not available in the database.',
             ]);
-    
-            $gsession = GymSession::findOrFail($id);
 
-            $gsession->update([
-                's_date' => $request->input('s_date'),
-                's_time' => $request->input('s_time'),
-                'c_id' => $request->input('c_id'),
-                't_id' => $request->input('t_id'),
-            ]);
+            DB::update(
+                "UPDATE Gym_Sessions 
+                SET s_date = ?, s_time = ?, c_id = ?, t_id = ? 
+                WHERE id = ?",
+                [
+                    $request->input('s_date'),
+                    $request->input('s_time'),
+                    $request->input('c_id'),
+                    $request->input('t_id'),
+                    $id
+                ]
+            );
     
             return redirect()->route('sessions')->with('success', 'Session updated successfully.');
-        } catch (ValidationException $e) {
+        } 
+        catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
     }
 
     public function deleteSession($id)
     {
-        $gsession = GymSession::findOrFail($id);
-        $gsession->delete();
+        DB::delete("DELETE FROM Gym_Sessions WHERE id = :id", ['id' => $id]);
 
         return redirect()->route('sessions')->with('success', 'Session deleted successfully!');
     }
-
-
 }

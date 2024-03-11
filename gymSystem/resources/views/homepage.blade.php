@@ -25,7 +25,7 @@
                 <div class="sep"></div>
                 <br>    
                 <a class="logout" href="{{route('logout')}}">
-                    <button class="logout-btn">Logout</button>
+                    <button class="logout-btn" type="submit" onclick="return confirm('Are you sure you want to logout?')">Logout</button>
                 </a>
             </div>
 

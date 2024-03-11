@@ -21,7 +21,7 @@
                     <th>Time</th>
                     <th>Customer ID</th>
                     <th>Trainer ID</th>
-                    <th style="width: 50px;">Edit</th>
+                    <th style="width: 50px;">View / Edit</th>
                     <th style="width: 60px;">Delete</th>
                 </tr>
             </thead>

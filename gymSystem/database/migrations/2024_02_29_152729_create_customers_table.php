@@ -11,15 +11,10 @@ return new class extends Migration
             create table Customers (
                 id int,
                 c_id varchar(10) primary key,
-                name varchar(50),
-                dob date,
-                age int,
-                gender varchar(10),
-                address varchar(50),
-                mobile varchar(15),
                 p_id varchar(10),
                 p_start date,
                 p_end date,
+                p_status varchar(10),
                 foreign key (p_id) references Plans(p_id) on delete no action,
                 created_at timestamp default current_timestamp,
                 updated_at timestamp default current_timestamp on update current_timestamp

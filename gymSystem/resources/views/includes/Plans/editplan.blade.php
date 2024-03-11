@@ -1,15 +1,18 @@
 @extends('homepage')
-@section('title', 'Edit Plan Details')
+@section('title', 'Plan Details')
 @section('content')
 <div class="detailsform">
     <form action="{{ route('updateplan', $plan->id) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
 
-        <h1>Edit Plan Details</h1>
+        <h1>Plan Details</h1>
         <div class="sep"></div>
 
         <div class="entryform">
+            <p style="font-style: italic; color: #aaa;">Last updated at: {{ \Carbon\Carbon::parse($plan->updated_at)->format('d-m-Y h:i:s A') }}</p>
+            <br>
+
             <label for="p_id">Plan ID:</label>
             <input type="text" id="p_id" name="p_id" value="{{ $plan->p_id }}" readonly required>
             <br>
@@ -27,7 +30,7 @@
             <br>
     
             <label for="price">Price (INR):</label>
-            <input type="number" step="0.01" id="price" name="price" value="{{ $plan->price }}" required>
+            <input type="number" step="0.01" min="0" id="price" name="price" value="{{ $plan->price }}" required>
             <br><br>
             
             <div style="color: rgb(233, 5, 5);">
@@ -39,7 +42,7 @@
             <br> 
 
             <div class="button-group">
-                <a class="cancel-button" href="{{ route('plans') }}">Cancel</a>
+                <a class="cancel-button" href="{{ route('plans') }}">Back</a>
                 <button type="submit">Update</button>
             </div>
         </div>

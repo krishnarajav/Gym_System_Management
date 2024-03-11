@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GymSession extends Model
 {
-    protected $table = 'Sessions';
+    protected $table = 'Gym_Sessions';
     protected $fillable = ['id', 's_date', 's_time', 'c_id', 't_id'];
 
     public function customer()

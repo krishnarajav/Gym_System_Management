@@ -1,15 +1,18 @@
 @extends('homepage')
-@section('title', 'Edit Customer Details')
+@section('title', 'Customer Details')
 @section('content')
 <div class="detailsform">
     <form action="{{ route('updatecustomer', $customer->id) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
 
-        <h1>Edit Customer Details</h1>
+        <h1>Customer Details</h1>
         <div class="sep"></div>
 
         <div class="entryform">
+            <p style="font-style: italic; color: #aaa;">Last updated at: {{ \Carbon\Carbon::parse($customer->updated_at)->format('d-m-Y h:i:s A') }}</p>
+            <br>
+
             <label for="c_id">Customer ID:</label>
             <input type="text" id="c_id" name="c_id" value="{{ $customer->c_id }}" readonly required>
             <br>
@@ -43,6 +46,14 @@
             </select>
             <br>
 
+            <label for="height">Height (cm):</label>
+            <input style="width: 150px;" type="number" min="0" id="height" name="height" value="{{ $customer->height }}" required>
+            <br>
+
+            <label for="weight">Weight (kg):</label>
+            <input style="width: 150px;" type="number" min="0" id="weight" name="weight" value="{{ $customer->weight }}" required>
+            <br>
+
             <label for="address">Address:</label>
             <input style="width: 600px;" type="text" id="address" name="address" value="{{ $customer->address }}" required>
             <br>
@@ -52,7 +63,7 @@
             <br>
 
             <label for="joined">Date Joined:</label>
-            <input style="width: 150px;" type="date" id="joined" name="created_at" value="{{ $customer->created_at->format('Y-m-d') }}" readonly>
+            <input style="width: 150px;" type="date" id="joined" name="created_at" value="{{ \Carbon\Carbon::parse($customer->created_at)->toDateString() }}" readonly>
             <br>
 
             <label for="p_id">Plan ID:</label>
@@ -70,6 +81,10 @@
             <label for="p_end">Plan End:</label>
             <input style="width: 150px;" type="date" id="p_end" name="p_end" value="{{ $customer->p_end }}" readonly>
             <br>
+
+            <label for="p_status">Plan Status:</label>
+            <input style="width: 150px;" type="text" id="p_status" name="p_status" value="{{ $customer->p_status }}" readonly>
+            <br>
             
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())
@@ -79,7 +94,7 @@
             <br> 
 
             <div class="button-group">
-                <a class="cancel-button" href="{{ route('customers') }}">Cancel</a>
+                <a class="cancel-button" href="{{ route('customers') }}">Back</a>
                 <button type="submit">Update</button>
             </div>
         </div>

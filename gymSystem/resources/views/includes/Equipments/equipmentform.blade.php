@@ -27,12 +27,21 @@
             <br>
 
             <label style="width: 120px;" for="price">Price (INR):</label>
-            <input type="number" step="0.01" id="price" name="price" required>
+            <input type="number" step="0.01" min="0" id="price" name="price" required>
             <br>
+
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
             <label  style="width: 120px;" for="purchased_date">Purchased Date:</label>
             <input style="width: 150px;" type="date" id="purchased_date" name="purchased_date" required>
             <br><br>
+
+            <script>
+                $(document).ready(function () {
+                    var today = new Date().toISOString().split('T')[0];
+                    $("#purchased_date").attr('max', today);
+                });
+            </script>
 
             <div style="color: rgb(233, 5, 5);">
                 @if($errors->any())

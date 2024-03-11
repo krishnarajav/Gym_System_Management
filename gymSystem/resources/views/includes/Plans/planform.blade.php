@@ -26,7 +26,7 @@
             <br>
     
             <label for="price">Price (INR):</label>
-            <input type="number" step="0.01" id="price" name="price" required>
+            <input type="number" step="0.01" min="0" id="price" name="price" required>
             <br><br>
 
             <div style="color: rgb(233, 5, 5);">

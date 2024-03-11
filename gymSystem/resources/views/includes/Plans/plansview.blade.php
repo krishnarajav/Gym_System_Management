@@ -7,8 +7,8 @@
         <a class="add-button" href="{{route('planform')}}">
             <button class="add-btn">Add</button>
         </a>
-<!--        <form class="search-bar">
-            <input type="search" placeholder="Search" aria-label="Search">
+       <!-- <form class="search-bar" action="#" method="get" autocomplete="off">
+            <input type="search" name="search" placeholder="Search" aria-label="Search">
             <button type="submit">Search</button>
         </form>-->
         <div class="sep"></div>
@@ -21,7 +21,7 @@
                     <th>Name</th>
                     <th>Period (Days)</th>
                     <th>Price (INR)</th>
-                    <th style="width: 50px;">Edit</th>
+                    <th style="width: 50px;">View / Edit</th>
                     <th style="width: 60px;">Delete</th>
                 </tr>
             </thead>

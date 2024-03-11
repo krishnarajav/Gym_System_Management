@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: url('../images/admin_home.jpg') center/cover no-repeat fixed;
+    background: url('../images/logged_in.jpg') center/cover no-repeat fixed;
 }
 
 .container {
@@ -19,8 +19,8 @@ body {
 }
 
 .navigation h2 {
-    color: #cc0000;
-    border-bottom: 2px solid #cc0000;
+    color: #db0000;
+    border-bottom: 2px solid #db0000;
     padding-bottom: 10px; 
 }
 
@@ -49,7 +49,7 @@ body {
 }
 
 .logout-btn {
-    background-color: #80000d;
+    background-color: #75000c;
     color: #ddd;
     border: none;
     padding: 10px 20px;
@@ -81,36 +81,7 @@ body {
     font-size: 1em;
     font-weight: bold;
     height: 32px;
-    margin: 0 0 0 10px;
-}
-
-.search-bar {
-    float: right;
-}
-
-.search-bar input {
-    width: 200px;
-    height: 32px;
-    background: none;  
-    padding: 10px;
-    box-sizing: border-box;
-    border: 2px solid #aaa;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    color: #ddd;
-    font-size: 0.9em;
-}
-
-.search-bar button {
-    height: 32px;
-    background-color: #b00000;
-    color: #ddd;
-    border: none;
-    padding: 0 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-right: 20px;
+    margin-left: 10px;
 }
 
 .elementary .sep {
@@ -203,13 +174,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .button-group .cancel-button {
+    margin-left: 5px;
     text-decoration: none;
     color: #ddd;
     padding: 8px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1em;
-    background-color: #005068; 
+    background-color: #003c5e; 
 }
 
 .entryform button{
@@ -221,7 +193,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 4px;
     cursor: pointer;
     font-size: 1em;
-    background-color: #b00000;
+    background-color: #950000;
 }
 
 .table-container{
@@ -239,7 +211,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: 2px solid #ffffff88;
     padding: 5px;
     text-align: center;
-    background-color: #5555559e;
+    background-color: #4a4a4ab7;
     color: #ddd;
 }
 
@@ -247,7 +219,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: 2px solid #ffffff88;
     padding: 5px;
     text-align: center;
-    background-color: #28282885;
+    background-color: #282828b7;
     color: #ddd;
 }
 
@@ -259,7 +231,7 @@ td .edit-button {
     font-size: 1em;
     display: flex;
     align-items: center;
-    background-color:#006a4a;
+    background-color:#006942;
 }
 
 .edit-button a {
@@ -269,7 +241,7 @@ td .edit-button {
 
 .delete-button button {
     cursor: pointer;
-    background-color: #1c3a6f; 
+    background-color: #1c3a6f;
     color: #ddd;
     height: 26px;
     font-size: 1em;

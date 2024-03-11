@@ -19,15 +19,12 @@
                 <tr style="height: 50px;">
                     <th style="max-width: 80px;">Trainer ID</th>
                     <th style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Name</th>
-                    <th>DOB</th>
                     <th>Age</th>
                     <th>Gender</th>
-                    <th style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">Address</th>
                     <th>Mobile</th>
                     <th>Experience</th>
-                    <th>Date Joined</th>
-                    <th>Salary</th>
-                    <th style="width: 50px;">Edit</th>
+                    <th>Salary (INR)</th>
+                    <th style="width: 50px;">View / Edit</th>
                     <th style="width: 60px;">Delete</th>
                 </tr>
             </thead>
@@ -38,13 +35,10 @@
                         <tr style="height: 60px;">
                             <td style="max-width: 80px;">{{ $trainer->t_id }}</td>
                             <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $trainer->name }}</td>
-                            <td>{{ \Carbon\Carbon::parse($trainer->dob)->format('d-m-Y') }}</td>
                             <td>{{ $trainer->age }}</td>
                             <td>{{ $trainer->gender }}</td>
-                            <td style="text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis;">{{ $trainer->address }}</td>
                             <td>{{ $trainer->mobile }}</td>
                             <td>{{ $trainer->experience }}</td>
-                            <td>{{ $trainer->created_at->format('d-m-Y') }}</td>
                             <td>{{ $trainer->salary }}</td>
                             <td><div class="edit-button"><a href="{{ route('edittrainer', $trainer->id) }}">View</a></div></td>
                             <td>

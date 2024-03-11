@@ -8,5 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Trainer extends Model
 {
     protected $table = 'Trainers';
-    protected $fillable = ['id', 't_id', 'name', 'dob', 'age', 'gender', 'experience', 'address', 'mobile', 'salary'];
+    protected $fillable = ['id', 't_id', 'experience', 'salary'];
+
+    public function personaldetails()
+    {
+        return $this->hasOne(Personal_Details::class, 't_id', 't_id');
+    }
 }
