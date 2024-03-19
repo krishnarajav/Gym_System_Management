@@ -4,14 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppManager;
 
 Route::get('/', [AppManager::class, 'login'])->name('login');
+Route::get('/login', [AppManager::class, 'login'])->name('login');
 Route::post('/home', [AppManager::class, 'loginPost'])->name('login.post');
 Route::get('/registration', [AppManager::class, 'registration'])->name('registration');
 Route::post('/registration', [AppManager::class, 'registrationPost'])->name('registration.post');
 Route::get('/logout', [AppManager::class, 'logout'])->name('logout');
 
-Route::middleware(['guest'])->group(function () {
+/*Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AppManager::class, 'showLoginForm'])->name('login');
-});
+});*/
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [AppManager::class, 'showHomepage'])->name('homepage');

@@ -47,7 +47,12 @@ class AppManager extends Controller {
         if (Auth::attempt($credentials)) {
             $admin = Auth::user();
             session(['name' => $admin->name]);
-            $customers = Customer::all();
+            $customers = DB::select(
+                "SELECT Customers.*, Personal_Details.*
+                FROM Customers
+                LEFT JOIN Personal_Details ON Customers.c_id = Personal_Details.c_id"
+            );
+    
             return view('.includes.Customers.customersview', ['customers' => $customers]);
         }
 
@@ -87,7 +92,11 @@ class AppManager extends Controller {
 
     public function showHomepage()
     {
-        $customers = DB::select("SELECT * FROM Customers");
+        $customers = DB::select(
+            "SELECT Customers.*, Personal_Details.*
+            FROM Customers
+            LEFT JOIN Personal_Details ON Customers.c_id = Personal_Details.c_id"
+        );
 
         return view('.includes.Customers.customersview', ['customers' => $customers]);
     }
@@ -174,7 +183,7 @@ class AppManager extends Controller {
         foreach ($customers as $customer) {
             DB::update(
                 "UPDATE Customers 
-                SET p_id = null, p_start = null, p_end = null, p_status = 'EXPIRED'
+                SET p_id = null, p_start = null, p_end = null, p_status = ''
                 WHERE id = ?",
                 [$customer->id]
             );
